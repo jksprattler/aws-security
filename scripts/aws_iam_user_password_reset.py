@@ -10,7 +10,6 @@ import secrets
 import string
 import boto3
 
-resource = boto3.resource('iam')
 client = boto3.client("iam")
 
 def passwordgen():
