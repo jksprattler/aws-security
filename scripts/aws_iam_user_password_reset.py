@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Simple AWS IAM user account password reset script using boto3
-Can output a list of existing IAM usernames to supply for reset
+Options include: list all existing AWS IAM users, Reset a user's
+password and create a login profile for Console UI access
 To be run by an AWS user w/ User Admin privileges
 """
 
@@ -10,7 +11,7 @@ import secrets
 import string
 import boto3
 
-client = boto3.client("iam")
+client = boto3.client('iam')
 
 def passwordgen():
     """
@@ -30,25 +31,42 @@ def passwordgen():
         pwd += ''.join(secrets.choice(alphabet))
     return pwd
 
-if __name__ == "__main__":
+def parse_args():
+    """ Define cli args to be parsed into main()"""
     parser = argparse.ArgumentParser(
-                                    description='List/Reset user accounts, output temp password')
+                description="List/Reset/Create profiles for user accounts, output temp password")
     subparser = parser.add_subparsers(dest='command')
-    list = subparser.add_parser('list')
-    reset = subparser.add_parser('reset')
-
-    list.add_argument('--list', help='List AWS IAM users')
-    reset.add_argument('--reset', help='Reset password')
-    reset.add_argument('-u', "--username", type=str,
-                       required=True, help='AWS IAM Username')
+    subparser.add_parser('list-users', help="List AWS IAM users")
+    reset = subparser.add_parser('reset', help="Reset a user password")
+    reset.add_argument('-u', '--username', type=str,
+                        required=True, help="AWS IAM Username")
+    profile = subparser.add_parser('profile', help="Create user login profile")
+    profile.add_argument('-u', '--username', type=str,
+                        required=True, help="AWS IAM Username")
     args = parser.parse_args()
+    return args
 
-    if args.command == 'list':
+def main():
+    """ List, reset or create login profiles for user accounts and output temp password """
+    args = parse_args()
+    pwd = passwordgen()
+    if args.command == 'list-users':
         for user in client.list_users()['Users']:
             print(f"User: {(user['UserName'])}")
     elif args.command == 'reset':
-        PWD = passwordgen()
         client.update_login_profile(UserName=args.username,
-                                    Password=PWD, PasswordResetRequired=True)
-        print(args.username, 'Temp password:')
-        print(PWD)
+                                    Password=pwd, PasswordResetRequired=True)
+        print('Password has been reset for:', args.username)
+        print('Login with temp password:')
+        print(pwd)
+        print('Password reset will be enforced upon initial login')
+    elif args.command == 'profile':
+        client.create_login_profile(UserName=args.username,
+                                    Password=pwd, PasswordResetRequired=True)
+        print('New login profile has been created for:', args.username)
+        print('Login with temp password:')
+        print(pwd)
+        print('Password reset will be enforced upon initial login')
+
+if __name__ == "__main__":
+    main()
