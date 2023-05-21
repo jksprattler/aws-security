@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+Jenna Sprattler | SRE Kentik | 2023-04-13
 Self service API access key rotation tool for IAM users
 New users need to create initial keys via Web UI and run `aws configure` locally
 Ref https://aws.amazon.com/blogs/security/how-to-rotate-access-keys-for-iam-users/

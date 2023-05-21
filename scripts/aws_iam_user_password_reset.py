@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+Jenna Sprattler | SRE Kentik | 2023-02-14
 Simple AWS IAM user account password reset script using boto3
 Options include: list all existing AWS IAM users, Reset a user's
 password and create a login profile for Console UI access
