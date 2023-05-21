@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """
+Jenna Sprattler | SRE Kentik | 2023-04-13
 Simple self service password reset tool for clients
 To be run by any AWS IAM user to reset their own password
 """
