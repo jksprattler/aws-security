@@ -31,7 +31,7 @@ def delete_login_profile(user_name):
         client.delete_login_profile(UserName=user_name)
         print(f"Deleting login profile for {user_name}")
     except client.exceptions.NoSuchEntityException:
-        print(f"No login profile exists for {user_name}")
+        print(f"No login profile found for {user_name}")
 
 def delete_mfa_devices(user_name):
     """ Get the list of MFA devices for the user and delete each MFA device """
@@ -49,19 +49,19 @@ def delete_mfa_devices(user_name):
 
 def delete_access_keys(user_name):
     """ Delete all access keys associated with user """
-    try:
-        # Get all access keys for the specified user
-        response = client.list_access_keys(UserName=user_name)
-        access_keys = response['AccessKeyMetadata']
+    # Get all access keys for the specified user
+    response = client.list_access_keys(UserName=user_name)
+    access_keys = response['AccessKeyMetadata']
 
-        # Delete each access key
-        for key in access_keys:
-            access_key_id = key['AccessKeyId']
-            client.delete_access_key(UserName=user_name, AccessKeyId=access_key_id)
-            print(f"Deleted access key: {access_key_id} for user: {user_name}")
+    if not access_keys:
+        print(f"No access keys found for {user_name}")
+        return
 
-    except Exception as e:
-        print(f"Error deleting access keys for user {user_name}: {e}")
+    # Delete each access key
+    for key in access_keys:
+        access_key_id = key['AccessKeyId']
+        client.delete_access_key(UserName=user_name, AccessKeyId=access_key_id)
+        print(f"Deleted access key: {access_key_id} for {user_name}")
 
 def main():
     """ Get the IAM username argument and proceed with cleanup only if username is valid """
